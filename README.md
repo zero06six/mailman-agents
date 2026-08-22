@@ -50,7 +50,7 @@ Since this runs 100% locally (privacy first), you'll have to load it manually vi
 1. Clone or download this repo to your machine.
 2. Open your browser's extensions page (`chrome://extensions/`).
 3. Toggle **Developer Mode** on.
-4. Click **Load unpacked** and select the `mailman-agents` folder.
+4. Click **Load unpacked** and select the `Mailman` folder.
 5. Pin it to your toolbar and you're good to go.
 
 ---

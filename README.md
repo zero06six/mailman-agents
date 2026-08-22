@@ -1,5 +1,5 @@
-<div align="center">
-  <img src="https://github.com/zero06six/mailman-agents/blob/main/icon128.png" alt="Mailman Logo" width="100%" />
+<div align="left">
+  <img src="https://github.com/zero06six/mailman-agents/blob/main/icon128.png" alt="Mailman Logo" width="10%" />
 </div>
 
 # Mailman Agents

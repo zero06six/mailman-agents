@@ -1,0 +1,1207 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAILMAN</title>
+    <style>
+        :root {
+            --bg-color: #212121;
+            --chat-bg: #2f2f2f;
+            --text-main: #ececec;
+            --text-muted: #9e9e9e;
+            --accent: #10b981;
+            --user-msg: #383838;
+            --border: #424242;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--bg-color);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 10px;
+        }
+
+        header h1 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .status-badge {
+            font-size: 12px;
+            padding: 4px 10px;
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--accent);
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        #chat-container {
+            flex: 1;
+            overflow-y: auto;
+            width: 100%;
+        }
+
+        #chat-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+            padding: 24px;
+        }
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            max-width: 85%;
+        }
+
+        .message.user {
+            align-self: flex-end;
+        }
+
+        .message.ai {
+            align-self: flex-start;
+        }
+
+        .message-content {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 15px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            word-break: break-word;
+        }
+
+        .message.user .message-content {
+            background-color: var(--user-msg);
+        }
+
+        .message.ai .message-content {
+            background-color: var(--chat-bg);
+            border: 1px solid var(--border);
+        }
+
+        .message-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 500;
+        }
+
+        .message.user .message-label {
+            text-align: right;
+        }
+
+                .message-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .message-meta {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            padding: 4px;
+            cursor: pointer;
+            color: var(--text-muted);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            color: var(--text);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .duration {
+            font-size: 11px;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .message.user .message-actions {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            flex-direction: row-reverse;
+        }
+
+        .timestamp {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .action-bar {
+            display: flex;
+            justify-content: flex-start;
+            margin-top: 12px;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            border-radius: 6px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin: 0;
+            padding: 0;
+        }
+
+        .action-btn:hover {
+            color: var(--text-main);
+            border-color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.05);
+            opacity: 1;
+        }
+        
+        .action-btn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .message.user         .message-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .message-meta {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .copy-btn {
+            background: none;
+            border: none;
+            padding: 4px;
+            cursor: pointer;
+            color: var(--text-muted);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            color: var(--text);
+            background: rgba(255,255,255,0.1);
+        }
+
+        .duration {
+            font-size: 11px;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .message.user .message-actions {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            flex-direction: row-reverse;
+        }
+
+        .timestamp {
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        #input-container {
+            padding: 20px 24px;
+            border-top: 1px solid var(--border);
+            background-color: var(--bg-color);
+            display: flex;
+            justify-content: center;
+        }
+
+        .input-wrapper {
+            display: flex;
+            max-width: 900px;
+            width: 100%;
+            background-color: var(--chat-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 8px 16px;
+            align-items: flex-end;
+        }
+
+        textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: var(--text-main);
+            font-size: 15px;
+            resize: none;
+            padding: 8px 0;
+            outline: none;
+            max-height: 200px;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+
+        button {
+            background-color: var(--text-main);
+            color: var(--bg-color);
+            border: none;
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            margin-bottom: 4px;
+            margin-left: 12px;
+            transition: opacity 0.2s, background-color 0.1s;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+        
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        button:active:not(:disabled) {
+            transform: scale(0.95);
+            background-color: var(--accent) !important;
+            color: #fff !important;
+            border-color: var(--accent) !important;
+            transition: 0s;
+        }
+
+        .secondary-btn {
+            background-color: var(--chat-bg);
+            color: var(--text-main);
+            border: 1px solid var(--border);
+            width: auto;
+            padding: 6px 12px;
+            font-size: 13px;
+            font-weight: 500;
+            margin: 0;
+            height: auto;
+        }
+
+        .secondary-btn:hover {
+            background-color: var(--border);
+        }
+
+        /* Modal Styles */
+        .modal-backdrop {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s;
+        }
+
+        .modal-backdrop.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        .modal-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.25rem;
+        }
+
+        #btn-toggle-all-nodes {
+            padding: 6px 12px;
+            font-size: 12px;
+            opacity: 0.7;
+            margin: 0;
+        }
+
+        .modal-body {
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .role-edit-block {
+            background: var(--chat-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: box-shadow 0.2s, opacity 0.2s, filter 0.2s;
+            margin-bottom: 12px;
+            flex-shrink: 0;
+        }
+
+        .role-edit-block.disabled-node {
+            opacity: 0.4;
+            filter: grayscale(100%);
+        }
+
+        .role-edit-block.dragging {
+            opacity: 0.5;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+
+        .card-top {
+            display: flex;
+            width: 100%;
+        }
+
+        .drag-handle {
+            width: 32px;
+            background: rgba(255,255,255,0.02);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-muted);
+            border-right: 1px solid var(--border);
+            font-size: 16px;
+            cursor: grab;
+        }
+        
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .card-header {
+            flex: 1;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        
+        .card-header:hover {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .ai-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            user-select: none;
+        }
+
+        .ai-logo {
+            width: 22px;
+            height: 22px;
+            flex-shrink: 0;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .node-number {
+            color: var(--accent);
+            font-weight: 800;
+            margin-right: 2px;
+            width: 16px;
+        }
+
+        .chevron {
+            transition: transform 0.2s;
+            margin-left: 8px;
+            color: var(--text-muted);
+        }
+
+        .role-edit-block.expanded .chevron {
+            transform: rotate(180deg);
+        }
+
+        .card-body {
+            display: none;
+            padding: 16px;
+            padding-left: 48px;
+            border-top: 1px solid var(--border);
+        }
+
+        .role-edit-block.expanded .card-body {
+            display: block;
+        }
+
+        /* Toggle Switch */
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 20px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--border);
+            transition: .2s;
+            border-radius: 20px;
+        }
+        
+        /* Expand hit box */
+        .slider::after {
+            content: '';
+            position: absolute;
+            top: -12px;
+            bottom: -12px;
+            left: -12px;
+            right: -12px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px;
+            width: 14px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .2s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: var(--accent);
+        }
+        input:checked + .slider:before {
+            transform: translateX(16px);
+        }
+
+        .card-body label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .card-body input {
+            width: 100%;
+            box-sizing: border-box;
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            outline: none;
+        }
+        
+        .card-body input:focus, .card-body textarea:focus {
+            border-color: var(--accent);
+        }
+
+        .card-body textarea {
+            width: 100%;
+            box-sizing: border-box;
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 13px;
+            min-height: 100px;
+            max-height: 250px;
+            outline: none;
+            resize: none;
+            margin-bottom: 4px;
+            overflow-y: auto !important;
+            line-height: 1.5;
+        }
+
+        .modal-footer {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .primary-btn {
+            background-color: var(--accent);
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            width: auto;
+            height: auto;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background-color: transparent;
+            border: 1px dashed var(--border);
+            border-radius: 8px;
+            align-self: flex-start;
+            max-width: 85%;
+            margin-top: 10px;
+        }
+
+        .loading-text {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+            /* Modular Builder Styles */
+        .modular-editor {
+            display: grid;
+            grid-template-columns: 290px 1fr 290px;
+            gap: 20px;
+            height: 600px;
+            padding: 20px;
+            box-sizing: border-box;
+            background: var(--bg-color);
+        }
+        .modular-column {
+            display: flex;
+            flex-direction: column;
+            background: var(--chat-bg);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+            position: relative;
+        }
+        .modular-column h3 {
+            margin: 0;
+            padding: 15px;
+            font-size: 14px;
+            font-weight: 600;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+            background: rgba(255,255,255,0.02);
+        }
+        .header-with-btn {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            background: rgba(255,255,255,0.02);
+            padding-right: 15px;
+        }
+        .header-with-btn h3 {
+            border-bottom: none;
+        }
+        .icon-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .palette {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .dropzone {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            gap: 15px;
+            position: relative;
+        }
+        .pipeline-footer {
+            padding: 15px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        /* Draggable Blocks */
+        .ai-block {
+            background: #383838;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: grab;
+            user-select: none;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.1s;
+        }
+        .ai-block:active {
+            cursor: grabbing;
+            transform: scale(0.98);
+        }
+        .ai-block .ai-logo {
+            width: 24px;
+            height: 24px;
+        }
+        .ai-block .ai-name {
+            font-weight: 500;
+            color: var(--text-main);
+        }
+        
+        /* Prompt Diamonds */
+        .prompt-diamond {
+            background: #2a2a2a;
+            border: 1px solid var(--accent);
+            border-radius: 4px;
+            padding: 10px;
+            cursor: grab;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 12px;
+            font-weight: 500;
+            user-select: none;
+            min-height: 40px;
+            /* Pseudo-diamond shape using clip-path or simple borders */
+        }
+        .prompt-diamond::before {
+            content: '';
+            position: absolute;
+            left: -5px;
+            top: 50%;
+            transform: translateY(-50%) rotate(45deg);
+            width: 10px;
+            height: 10px;
+            background: var(--accent);
+        }
+        
+        /* Attached Prompt Badge */
+        .attached-prompt {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: var(--accent);
+            color: white;
+            font-size: 10px;
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            pointer-events: none;
+            white-space: nowrap;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        /* Error State */
+        .ai-block.error-adjacent {
+            border-color: #ff4444;
+            box-shadow: 0 0 8px rgba(255, 68, 68, 0.4);
+        }
+        
+        /* Pipeline Item Specifics */
+        .pipeline-item {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .pipeline-item:not(:last-child)::after {
+            content: '→';
+            position: absolute;
+            right: -15px;
+            color: var(--text-muted);
+            font-weight: bold;
+        }
+        
+        .empty-state {
+            color: var(--text-muted);
+            width: 100%;
+            text-align: center;
+            margin-top: 50px;
+            font-style: italic;
+        }
+        
+        /* Drag Overlay */
+        .remove-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 68, 68, 0.1);
+            backdrop-filter: blur(2px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ff4444;
+            font-weight: bold;
+            font-size: 16px;
+            z-index: 10;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            border: 2px dashed #ff4444;
+            box-sizing: border-box;
+        }
+        .show-remove .remove-overlay {
+            opacity: 1;
+        }
+        
+        /* Sub Modal */
+        .sub-modal {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .sub-modal-content {
+            background: var(--chat-bg);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .sub-modal-content h3 { margin-top: 0; }
+        .sub-modal-content label { font-size: 12px; color: var(--text-muted); }
+        .sub-modal-content input, .sub-modal-content textarea {
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+        .sub-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        /* Delete btn for custom prompts */
+        .prompt-diamond .edit-btn {
+            position: absolute;
+            top: 2px;
+            right: 18px;
+            font-size: 10px;
+            color: var(--text-muted);
+            cursor: pointer;
+            background: transparent;
+            border: none;
+        }
+        .prompt-diamond .edit-btn:hover { color: var(--accent); }
+        .prompt-diamond .del-btn {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            font-size: 10px;
+            color: var(--text-muted);
+            cursor: pointer;
+            background: transparent;
+            border: none;
+        }
+        .prompt-diamond .del-btn:hover { color: #ff4444; }
+            /* Modal Width Override for Modular Builder */
+        #roles-modal .modal {
+            width: 80% !important;
+            max-width: 1200px !important;
+        }
+        
+        .modular-editor {
+            height: 70vh !important;
+            min-height: 500px;
+        }
+                            .pipeline-item {
+            flex: 0 0 calc(25% - 12px);
+            max-width: calc(25% - 12px);
+            box-sizing: border-box;
+        }
+        .pipeline-item .ai-block {
+            width: 100%;
+            justify-content: flex-start;
+        }
+        /* Hide the arrow if it's the last item in a row (every 4th item) */
+        .pipeline-item:nth-child(4n)::after {
+            display: none;
+        }
+            .ai-block .ai-name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+            flex: 1;
+        }
+            
+            .no-spinners::-webkit-inner-spin-button,
+        .no-spinners::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .no-spinners {
+            -moz-appearance: textfield;
+        }
+            .input-wrapper.expanded {
+            position: fixed !important;
+            bottom: 20px !important;
+            left: 50% !important;
+            transform: translateX(-50%) !important;
+            width: 90% !important;
+            max-width: 900px !important;
+            height: 60vh !important;
+            z-index: 1000 !important;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8) !important;
+            flex-direction: column !important;
+            align-items: stretch !important;
+        }
+        .input-wrapper.expanded textarea {
+            max-height: none !important;
+            height: 100% !important;
+            padding-right: 40px !important;
+            flex: 1 !important;
+        }
+        .input-wrapper.expanded #expand-input-btn {
+            top: 20px !important;
+            right: 20px !important;
+        }
+        .input-wrapper.expanded button#send-btn, .input-wrapper.expanded button#stop-btn {
+            align-self: flex-end !important;
+            margin-top: 10px !important;
+        }
+        #expand-input-btn:hover {
+            opacity: 1 !important;
+        }
+        textarea#prompt-input {
+            padding-right: 40px !important;
+        }
+</style>
+</head>
+<body>
+
+    <header>
+        <div class="header-left">
+            <h1 style="margin: 0; font-size: 24px; letter-spacing: 2px; display: flex; align-items: center;"><img src="icon.png" style="height: 52px; margin: -14px 12px -14px -4px; border-radius: 4px;">M<span style="color: #4da6ff; font-weight: 900;">AI</span>LMAN</h1>
+            <button id="btn-setup-council" class="action-btn" style="width: auto; padding: 0 12px; font-size: 13px; margin-left: 10px;">
+                Initialize Setup
+            </button>
+            <span class="status-badge">Idle</span>
+        </div>
+        <div class="header-right">
+            <button class="secondary-btn" id="btn-edit-roles">Edit Roles</button>
+        </div>
+    </header>
+
+    <div id="chat-container">
+        <div id="chat-inner">
+            <!-- Initial Greeting Removed -->
+        </div>
+    </div>
+
+    <div id="input-container">
+        <div class="input-wrapper" style="position: relative;">
+            <button id="expand-input-btn" title="Expand/Collapse" style="position: absolute; top: 10px; right: 10px; background: var(--bg-color); border: 1px solid var(--border); color: var(--text-muted); cursor: pointer; padding: 6px; border-radius: 6px; display: none; align-items: center; justify-content: center; z-index: 10; opacity: 0.7; transition: opacity 0.2s;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+            </button>
+            <textarea id="prompt-input" rows="1" placeholder="Type your prompt here..."></textarea>
+            <button id="send-btn" title="Send">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+            <button id="stop-btn" title="Stop Pipeline" style="display: none; background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid #ef4444; margin-left: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12" rx="2" ry="2"></rect></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Edit Roles Modal -->
+    <div id="roles-modal" class="modal-backdrop">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>Edit AI Roles & Prompts</h2>
+                <button class="secondary-btn" id="btn-toggle-all-nodes">Disable All</button>
+            </div>
+                          <div class="modal-body modular-editor" id="pipeline-editor">
+                  <div class="modular-column" id="col-ais">
+                      <h3>Available AIs</h3>
+                      <div class="palette" id="ai-palette"></div>
+                  </div>
+                  <div class="modular-column" id="col-pipeline">
+                      <h3>Pipeline Sequence</h3>
+                      <div class="dropzone" id="pipeline-dropzone">
+                          <div class="empty-state">Drag AIs here</div>
+                      </div>
+                      <div class="pipeline-footer" style="display: flex; gap: 10px; align-items: center; justify-content: flex-end;">
+    <label for="contextDepthSelect" style="color: var(--text-muted); font-size: 13px;">Context Depth:</label>
+    <input type="number" id="contextDepthSelect" class="action-btn no-spinners" title="How many past nodes of context to include. Leave empty or 0 for infinite." min="0" style="background: var(--bg-color); border: 1px solid var(--border); color: var(--text-main); font-weight: normal; padding: 6px 12px; height: auto; width: 40px; text-align: center;">
+    <button class="primary-btn" id="btn-save-pipeline">Save & Close</button>
+</div>
+                  </div>
+                  <div class="modular-column" id="col-prompts">
+                      <div class="header-with-btn">
+                          <h3>Prompts</h3>
+                          <button id="btn-add-prompt" class="icon-btn" title="Add Custom Prompt">+</button>
+                      </div>
+                      <div class="palette" id="prompt-palette"></div>
+                  </div>
+              </div>
+              
+              <!-- Custom Prompt Modal -->
+              <div id="custom-prompt-modal" class="sub-modal" style="display: none;">
+                  <div class="sub-modal-content">
+                      <h3>Create Custom Prompt</h3>
+                      <label>Role Name</label>
+                      <input type="text" id="custom-role-input" maxlength="20" placeholder="e.g. Devil's Advocate">
+                      <label>System Prompt</label>
+                      <textarea id="custom-prompt-input" rows="4" placeholder="Your instructions..."></textarea>
+                      <div class="sub-modal-actions">
+                          <button class="secondary-btn" id="btn-cancel-prompt">Cancel</button>
+                          <button class="primary-btn" id="btn-save-prompt">Save Prompt</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+    <div id="editPromptModal" class="modal-backdrop">
+        <div class="modal" style="max-width: 400px; padding: 20px;">
+            <div class="modal-header" style="border-bottom: none; padding-bottom: 0;">
+                <h2 style="margin: 0; font-size: 16px;" id="editPromptTitle">Edit Custom Prompt</h2>
+                <button class="icon-btn" id="closeEditPromptBtn" style="background: transparent; border: none; color: var(--text-muted); cursor: pointer; font-size: 16px;">x</button>
+            </div>
+            <div class="modal-body" style="padding-top: 15px;">
+    <label style="display: block; margin-bottom: 5px; color: var(--text-muted); font-size: 12px;">Role Name</label>
+    <input type="text" id="editPromptRole" style="width: 100%; box-sizing: border-box; margin-bottom: 15px; padding: 8px; background: var(--chat-bg); border: 1px solid var(--border); color: white; border-radius: 4px;">
+    
+    <label style="display: block; margin-bottom: 5px; color: var(--text-muted); font-size: 12px;">Instructions</label>
+    <textarea id="editPromptText" style="width: 100%; box-sizing: border-box; height: 230px !important; min-height: 230px !important; max-height: none !important; flex: none !important; padding: 8px; background: var(--chat-bg); border: 1px solid var(--border); color: white; border-radius: 4px; resize: none; font-family: inherit; font-size: 13px;"></textarea>
+</div>
+<div class="pipeline-footer" style="display: flex; justify-content: flex-end; padding-top: 15px; border: none;">
+    <button class="primary-btn" id="saveEditPromptBtn">Save</button>
+</div>
+        </div>
+    </div>
+    <div id="info-btn" style="position: fixed; bottom: 20px; left: 20px; width: 24px; height: 24px; background: transparent; border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: all 0.2s; z-index: 100;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+    </div>
+    <a id="github-btn" href="https://github.com/zero06six/mailman-agents" target="_blank" style="position: fixed; bottom: 20px; left: 54px; width: 24px; height: 24px; background: transparent; border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: all 0.2s; z-index: 100; text-decoration: none;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 1024 1024" fill="none">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8C0 11.54 2.29 14.53 5.47 15.59C5.87 15.66 6.02 15.42 6.02 15.21C6.02 15.02 6.01 14.39 6.01 13.72C4 14.09 3.48 13.23 3.32 12.78C3.23 12.55 2.84 11.84 2.5 11.65C2.22 11.5 1.82 11.13 2.49 11.12C3.12 11.11 3.57 11.7 3.72 11.94C4.44 13.15 5.59 12.81 6.05 12.6C6.12 12.08 6.33 11.73 6.56 11.53C4.78 11.33 2.92 10.64 2.92 7.58C2.92 6.71 3.23 5.99 3.74 5.43C3.66 5.23 3.38 4.41 3.82 3.31C3.82 3.31 4.49 3.1 6.02 4.13C6.66 3.95 7.34 3.86 8.02 3.86C8.7 3.86 9.38 3.95 10.02 4.13C11.55 3.09 12.22 3.31 12.22 3.31C12.66 4.41 12.38 5.23 12.3 5.43C12.81 5.99 13.12 6.7 13.12 7.58C13.12 10.65 11.25 11.33 9.47 11.53C9.76 11.78 10.01 12.26 10.01 13.01C10.01 14.08 10 14.94 10 15.21C10 15.42 10.15 15.67 10.55 15.59C13.71 14.53 16 11.53 16 8C16 3.58 12.42 0 8 0Z" transform="scale(64)" fill="currentColor"/>
+        </svg>
+    </a>
+
+    <div id="creditsModal" class="modal-backdrop">
+        <div class="modal" style="max-width: 420px; padding: 32px 24px; text-align: center; border-radius: 12px; background: var(--bg-color); border: 1px solid var(--border);">
+            <img src="icon.png" style="height: 100px; width: auto; object-fit: contain; margin-bottom: 20px; border-radius: 8px;">
+              <h2 style="margin: 0 0 12px 0; font-size: 22px; color: var(--text-main); letter-spacing: 2px; font-weight: 800;">M<span style="color: #4da6ff;">AI</span>LMAN</h2>
+              <p style="margin: 0 0 20px 0; font-size: 14px; color: var(--text-muted); line-height: 1.6;">Run complex multi-agent pipelines invisibly in the background using the AI accounts you already own.<br>All natively in your browser.</p>
+              <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 24px;">
+                  <span style="background: rgba(77, 166, 255, 0.1); color: #4da6ff; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid rgba(77, 166, 255, 0.2);">Open Source</span>
+                  <span style="background: rgba(77, 166, 255, 0.1); color: #4da6ff; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid rgba(77, 166, 255, 0.2);">Zero API Keys</span>
+                  <span style="background: rgba(77, 166, 255, 0.1); color: #4da6ff; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid rgba(77, 166, 255, 0.2);">100% Free</span>
+                  <span style="background: rgba(77, 166, 255, 0.1); color: #4da6ff; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; border: 1px solid rgba(77, 166, 255, 0.2);">Simple Setup</span>
+              </div>
+            <div style="margin: 0 0 24px 0; font-size: 13px; color: var(--text-muted); line-height: 1.6; text-align: left; background: var(--chat-bg); padding: 16px; border-radius: 8px; border: 1px solid var(--border);">
+                <div style="font-weight: 600; font-size: 14px; margin-bottom: 12px; color: var(--text-main); text-align: center; letter-spacing: 0.5px;">&#9749; Support the Project</div>
+                <div style="margin-bottom: 6px; font-weight: 500;">&#8226; EVM (ETH / BNB / Base / MATIC):</div>
+                <div style="font-family: monospace; font-size: 11px; color: var(--text-main); background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; margin-bottom: 16px; word-break: break-all; border: 1px solid rgba(255,255,255,0.05); user-select: all;">0xEE725966cEcd2014c6191C100f927485F0636BA3</div>
+                <div style="margin-bottom: 6px; font-weight: 500;">&#8226; Solana (SOL / USDT):</div>
+                <div style="font-family: monospace; font-size: 11px; color: var(--text-main); background: rgba(0,0,0,0.3); padding: 8px; border-radius: 6px; word-break: break-all; border: 1px solid rgba(255,255,255,0.05); user-select: all;">2a7kHeVRsXJPojJyGKqqDfpd1Vd1wnzHY8drPBKx7uiq</div>
+            </div>
+            <button class="primary-btn" id="closeCreditsBtn" style="width: 100%; justify-content: center; padding: 10px 0; font-size: 14px;">Awesome</button>
+        </div>
+    </div>
+
+    <script src="dashboard-bridge.js"></script>
+  <script src="ai-data.js"></script>
+  <script src="dashboard.js"></script>
+  <script src="pipeline-builder.js"></script>
+    <div style="position: fixed; bottom: 20px; right: 24px; font-size: 11px; color: var(--text-muted); opacity: 0.7; font-family: monospace; z-index: 100; user-select: none;">v1.0.0</div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

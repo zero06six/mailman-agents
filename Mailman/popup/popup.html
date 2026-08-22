@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>AI Prompt Bridge</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <h2>AI Prompt Bridge</h2>
+    <p class="subtitle">DeepSeek &rarr; Qwen &rarr; Meta AI &rarr; Gemini</p>
+    
+    <textarea id="initial-prompt" placeholder="Write your prompt here..."></textarea>
+    
+    <button id="start-btn">Start Bridge</button>
+    <button id="reset-btn">Stop / Reset</button>
+    
+    <div id="status-container">
+      <p id="status-text">Idle</p>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

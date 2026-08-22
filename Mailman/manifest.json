@@ -1,0 +1,33 @@
+﻿{
+  "manifest_version": 3,
+  "name": "MAILMAN",
+  "version": "1.0",
+  "description": "Chains prompts across DeepSeek, Qwen, Meta AI, Gemini, Claude, and ChatGPT.",
+  "icons": {
+    "16": "icon.png",
+    "48": "icon.png",
+    "128": "icon.png"
+  },
+  "permissions": [
+    "tabs",
+    "scripting",
+    "storage",
+    "tabCapture",
+    "offscreen"
+  ],
+  "host_permissions": [
+    "*://chat.deepseek.com/*",
+    "*://chat.qwen.ai/*",
+    "*://www.meta.ai/*",
+    "*://gemini.google.com/*",
+    "*://chatgpt.com/*",
+    "*://claude.ai/*",
+    "*://grok.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_icon": "icon.png"
+  }
+}

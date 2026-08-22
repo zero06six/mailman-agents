@@ -1,3 +1,7 @@
+<div align="center">
+  <img src="https://github.com/zero06six/mailman-agents/blob/main/icon128.png" alt="Mailman Logo" width="100%" />
+</div>
+
 # Mailman Agents
 
 **The AI orchestrator that lives in your browser (and doesn't cost a dime).**
